@@ -1,5 +1,4 @@
 import ReactDOM from 'react-dom';
-import CellList from './components/cellLists/cell-list';
 import { Provider } from 'react-redux';
 import { store } from './state';
 import Sidebar from './components/sidebar';
@@ -9,6 +8,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import theme from './styles/theme';
 import { styled } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import Main from './components/mainSections';
 
 const MainGrid = styled(Grid)(({ theme }) => ({
   background: theme.palette.custom.dark3,
@@ -24,7 +24,7 @@ const App = () => {
         <MainGrid container direction="row">
           <MiniSidebar />
           <Sidebar />
-          <CellList />
+          <Main />
         </MainGrid>
       </ThemeProvider>
     </Provider>

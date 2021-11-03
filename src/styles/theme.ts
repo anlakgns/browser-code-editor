@@ -27,9 +27,11 @@ let theme = createTheme({
       dark1: '#333333',
       dark2: '#242424',
       dark3: '#1A1A1A',
-      textGrey: "#aaaaaa"
+      textGrey: '#aaaaaa',
+      textWhite: '#ffffff',
     },
   },
+  
 });
 
 theme = responsiveFontSizes(theme);

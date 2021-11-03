@@ -4,7 +4,7 @@ import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutl
 import CreateNewFolderOutlinedIcon from '@mui/icons-material/CreateNewFolderOutlined';
 import IconButton from '@mui/material/IconButton';
 import MenuOutlinedIcon from '@mui/icons-material/MenuOutlined';
-import MenuOpenOutlinedIcon from '@mui/icons-material/MenuOpenOutlined';
+import {useActions} from '../../hooks/use-actions'
 
 const MainGrid = styled(Grid)(({ theme }) => ({
   background: theme.palette.custom.dark1,
@@ -14,7 +14,7 @@ const MainGrid = styled(Grid)(({ theme }) => ({
   padding: '1rem 0rem',
 }));
 
-const IconFolder = styled(CreateNewFolderOutlinedIcon)(({ theme }) => ({
+const IconFolderAdd = styled(CreateNewFolderOutlinedIcon)(({ theme }) => ({
   color: theme.palette.custom.textGrey,
   fontSize: '1.8rem',
 }));
@@ -24,22 +24,33 @@ const IconMenu = styled(MenuOutlinedIcon)(({ theme }) => ({
   fontSize: '1.4rem',
 }));
 
-const IconFile = styled(InsertDriveFileOutlinedIcon)(({ theme }) => ({
+const IconFileAdd = styled(InsertDriveFileOutlinedIcon)(({ theme }) => ({
   color: theme.palette.custom.textGrey,
   fontSize: '1.8rem',
 }));
 
 const MiniSidebar: React.FC = () => {
+  const {createNodeAttempt} = useActions();
+
+  const folderHandler = () => {
+    createNodeAttempt("folder", true)
+  }
+
+  const fileHandler = () => {
+    createNodeAttempt("file", true)
+  }
+
+
   return (
     <MainGrid>
       <IconButton>
         <IconMenu />
       </IconButton>
-      <IconButton>
-        <IconFolder />
+      <IconButton onClick={folderHandler}>
+        <IconFolderAdd  />
       </IconButton>
-      <IconButton>
-        <IconFile />
+      <IconButton onClick={fileHandler}>
+        <IconFileAdd />
       </IconButton>
     </MainGrid>
   );
