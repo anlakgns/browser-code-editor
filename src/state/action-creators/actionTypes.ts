@@ -1,8 +1,21 @@
 export enum ActionType {
-  MOVE_CELL = 'move_cell',
-  DELETE_CELL = 'delete_cell',
-  INSERT_CELL_BEFORE = 'insert_cell_before',
-  UPDATE_CELL = 'update_cell',
+
+  CREATE_NODE_ATTEMPT = "attempt_to_create_node",
+
+  // file actions
+  DELETE_FILE = 'delete_file',
+  CREATE_FILE = 'add_file',
+  UPDATE_FILE = "update_file",
+
+  // folder actions
+  DELETE_FOLDER = 'delete_folder',
+  CREATE_FOLDER = 'create_folder',
+  CREATE_FILE_IN_FOLDER = 'add_file_in_folder',
+  DELETE_FILE_IN_FOLDER = 'delete_file_in_folder',
+  // move actions are missed. later they will be handled.
+
+
+  // bundle actions
   BUNDLE_START = 'bundle_start',
-  BUNDLE_COMPLETE = 'bundle_complete'
+  BUNDLE_COMPLETE = 'bundle_complete',
 }

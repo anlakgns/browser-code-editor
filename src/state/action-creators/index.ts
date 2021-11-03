@@ -1,76 +1,127 @@
-import { Dispatch} from 'redux'
+import { Dispatch } from 'redux';
 import { ActionType } from './actionTypes';
-import { CellTypes } from '../cellTypes';
+import { CellTypes, NodeTypes } from '../cellNodeTypes';
 import {
-  UpdateCellAction,
-  DeleteCellAction,
-  MoveCellAction,
-  InsertCellBeforeAction,
-  Direction,
-  Action
+  CreateFileAction,
+  UpdateFileAction,
+  DeleteFileAction,
+  CreateFolderAction,
+  DeleteFolderAction,
+  CreateFileInFolderAction,
+  DeleteFileInFolderAction,
+  CreationNoteAttempt,
+  Action,
 } from './actionCreatorTypes';
-import bundle from '../../bundler'
+import bundle from '../../bundler';
 
-export const updateCell = (id: string, content: string): UpdateCellAction => {
+export const createFile = (name: string): CreateFileAction => {
   return {
-    type: ActionType.UPDATE_CELL,
+    type: ActionType.CREATE_FILE,
     payload: {
-      id: id,
-      content: content,
+      name,
     },
   };
 };
 
-export const deleteCell = (id: string): DeleteCellAction => {
+export const updateFile = (
+  nodeId: string,
+  cellType: CellTypes,
+  newContent: string
+): UpdateFileAction => {
   return {
-    type: ActionType.DELETE_CELL,
+    type: ActionType.UPDATE_FILE,
     payload: {
-      id: id,
+      nodeId,
+      cellType,
+      newContent,
     },
   };
 };
 
-export const moveCell = (id: string, direction: Direction): MoveCellAction => {
+export const deleteFile = (nodeId: string): DeleteFileAction => {
   return {
-    type: ActionType.MOVE_CELL,
+    type: ActionType.DELETE_FILE,
     payload: {
-      id: id,
-      direction: direction,
+      nodeId,
     },
   };
 };
 
-export const insertCellBefore = (
-  id: string | null,
-  cellType: CellTypes
-): InsertCellBeforeAction => {
+export const createFolder = (name: string): CreateFolderAction => {
   return {
-    type: ActionType.INSERT_CELL_BEFORE,
+    type: ActionType.CREATE_FOLDER,
     payload: {
-      id: id,
-      type: cellType,
+      name,
     },
   };
 };
 
-export const createBundle = (id: string, input: string ) => {
-  return async (dispatch : Dispatch<Action>) => {
+export const deleteFolder = (nodeId: string): DeleteFolderAction => {
+  return {
+    type: ActionType.DELETE_FOLDER,
+    payload: {
+      nodeId,
+    },
+  };
+};
+
+export const createFileInFolder = (
+  folderNodeId: string,
+  name: string
+): CreateFileInFolderAction => {
+  return {
+    type: ActionType.CREATE_FILE_IN_FOLDER,
+    payload: {
+      folderNodeId,
+      name,
+    },
+  };
+};
+
+export const deleteFileInFolder = (
+  folderNodeId: string,
+  fileNodeId: string
+): DeleteFileInFolderAction => {
+  return {
+    type: ActionType.DELETE_FILE_IN_FOLDER,
+    payload: {
+      folderNodeId,
+      fileNodeId,
+    },
+  };
+};
+
+export const createNodeAttempt = (
+  nodeType: NodeTypes,
+  status: boolean
+): CreationNoteAttempt => {
+  return {
+    type: ActionType.CREATE_NODE_ATTEMPT,
+    payload: {
+      nodeType,
+      status,
+    },
+  };
+};
+
+export const createBundle = (id: string, input: string) => {
+  return async (dispatch: Dispatch<Action>) => {
     dispatch({
       type: ActionType.BUNDLE_START,
       payload: {
-        id: id
-      }
-    })
+        id: id,
+      },
+    });
 
-    const result = await bundle(input)
+    const result = await bundle(input);
 
     dispatch({
       type: ActionType.BUNDLE_COMPLETE,
       payload: {
-          id: id,
-          bundle: result.code,
-          err: result.err
-        }
-    })
-  }
-}
+        id: id,
+        bundle: result.code,
+        err: result.err,
+      },
+    });
+  };
+};
