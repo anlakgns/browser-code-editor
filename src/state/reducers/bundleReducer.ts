@@ -6,13 +6,14 @@ import { Action } from '../action-creators/actionCreatorTypes';
 
 // All types return state, it is meanningles with immer but we do it because of typescript. It thinks the reducers may return undefined if we dont do that.
 
-
 interface BundleState {
-  [key: string]: {
-    loading: boolean;
-    code: string;
-    err: string;
-  } | undefined;
+  [key: string]:
+    | {
+        loading: boolean;
+        code: string;
+        err: string;
+      }
+    | undefined;
 }
 
 const initialState: BundleState = {};
@@ -21,7 +22,7 @@ const reducer = produce(
   (state: BundleState = initialState, action: Action): BundleState => {
     switch (action.type) {
       case ActionType.BUNDLE_START:
-        state[action.payload.id] = {
+        state[action.payload.nodeId] = {
           loading: true,
           code: '',
           err: '',
@@ -29,7 +30,7 @@ const reducer = produce(
         return state;
 
       case ActionType.BUNDLE_COMPLETE:
-        state[action.payload.id] = {
+        state[action.payload.nodeId] = {
           loading: false,
           code: action.payload.bundle,
           err: action.payload.err,

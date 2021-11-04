@@ -3,8 +3,12 @@ import Grid from '@mui/material/Grid';
 import { Typography } from '@mui/material';
 import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined';
 import { File } from '../../state/cellNodeTypes';
+import { useActions } from '../../hooks/use-actions';
+import useTypedSelector from '../../hooks/use-typed-selector';
 
-const MainGrid = styled(Grid)(({ theme }) => ({}));
+const MainGrid = styled(Grid)(({ theme }) => ({
+  cursor: 'pointer',
+}));
 
 const LineGrid = styled(Grid)(({ theme }) => ({
   display: 'flex',
@@ -38,8 +42,25 @@ interface NodeFileProps {
 }
 
 const NodeFile: React.FC<NodeFileProps> = ({ node }) => {
+  const { selectFileForView } = useActions();
+  const selectedFile = useTypedSelector(
+    (state) => state.nodes.selectedFileToView
+  );
+
+  const selectFileToViewHandler = () => {
+    selectFileForView(node.nodeId);
+  };
+
   return (
-    <MainGrid>
+    <MainGrid
+      onClick={selectFileToViewHandler}
+      sx={{
+        background:
+          node.nodeId === selectedFile?.nodeId
+            ? 'linear-gradient(to right, transparent 10%, orange )'
+            : 'transparent',
+      }}
+    >
       <LineGrid key={node.nodeId}>
         <LeftLineGrid>
           <FileIconStyled />

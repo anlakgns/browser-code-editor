@@ -37,7 +37,7 @@ const TextEditor: React.FC<TextEditorProps> = ({ file }) => {
     return (
       <div ref={ref} className="text-editor">
         <MDEditor
-          value={file.text.content}
+          value={file.text}
           onChange={(v) => console.log(file.nodeId, v || '')}
         />
       </div>
@@ -47,7 +47,7 @@ const TextEditor: React.FC<TextEditorProps> = ({ file }) => {
   return (
     <div onClick={(e) => setEditing(true)} className="text-editor card">
       <div className="card-content">
-        <MDEditor.Markdown source={file.text.content || 'Click to Edit'} />
+        <MDEditor.Markdown source={file.text || 'Click to Edit'} />
       </div>
     </div>
   );

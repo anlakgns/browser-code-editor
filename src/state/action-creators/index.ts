@@ -10,6 +10,7 @@ import {
   CreateFileInFolderAction,
   DeleteFileInFolderAction,
   CreationNoteAttempt,
+  SelectFileForView,
   Action,
 } from './actionCreatorTypes';
 import bundle from '../../bundler';
@@ -93,23 +94,34 @@ export const deleteFileInFolder = (
 
 export const createNodeAttempt = (
   nodeType: NodeTypes,
-  status: boolean
+  status: boolean,
+  parentNodeId: string
 ): CreationNoteAttempt => {
   return {
     type: ActionType.CREATE_NODE_ATTEMPT,
     payload: {
       nodeType,
       status,
+      parentNodeId,
     },
   };
 };
 
-export const createBundle = (id: string, input: string) => {
+export const selectFileForView = (nodeId: string): SelectFileForView => {
+  return {
+    type: ActionType.SELECT_FILE_FOR_VIEW,
+    payload: {
+      nodeId,
+    },
+  };
+};
+
+export const createBundle = (nodeId: string, input: string) => {
   return async (dispatch: Dispatch<Action>) => {
     dispatch({
       type: ActionType.BUNDLE_START,
       payload: {
-        id: id,
+        nodeId,
       },
     });
 
@@ -118,7 +130,7 @@ export const createBundle = (id: string, input: string) => {
     dispatch({
       type: ActionType.BUNDLE_COMPLETE,
       payload: {
-        id: id,
+        nodeId,
         bundle: result.code,
         err: result.err,
       },

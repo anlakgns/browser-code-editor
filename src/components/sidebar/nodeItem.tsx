@@ -12,12 +12,14 @@ interface NodeItemProps {
 }
 
 const NodeItem: React.FC<NodeItemProps> = ({ node, index }) => {
+  
+
   return (
     <MainGrid>
       {node.nodeType === 'folder' ? (
-        <NodeFolder node={node} index={index} />
+        <NodeFolder node={node}/>
       ) : (
-        <NodeFile node={node} />
+        <NodeFile node={node}  />
       )}
     </MainGrid>
   );

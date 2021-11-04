@@ -12,7 +12,9 @@ interface NodeState {
   attemptToCreate: {
     status: boolean;
     nodeType: NodeTypes | null;
+    parentNodeId: string | 'workspace' | null;
   };
+  selectedFileToView: File | null;
 }
 
 const initialState: NodeState = {
@@ -20,7 +22,9 @@ const initialState: NodeState = {
   attemptToCreate: {
     status: false,
     nodeType: null,
+    parentNodeId: null,
   },
+  selectedFileToView: null,
 };
 
 const reducer = produce(
@@ -31,28 +35,27 @@ const reducer = produce(
           name: action.payload.name,
           nodeId: randomId(),
           nodeType: 'file',
-          code: {
-            type: 'code',
-            content: '',
-          },
-          text: {
-            type: 'text',
-            content: '',
-          },
+          code: '',
+          text: '',
         };
         state.allNodes.push(newFile);
 
         return state;
 
-      case ActionType.UPDATE_FILE:
+      case ActionType.UPDATE_FILE: {
         const { nodeId, cellType, newContent } = action.payload;
         const nodeUpdateIndex = state.allNodes.findIndex(
           (n) => n.nodeId === nodeId
         );
 
-        state.allNodes[nodeUpdateIndex][cellType].content = newContent;
+        const file = state.allNodes[nodeUpdateIndex];
+
+        if (file.nodeType === 'file') {
+          file[cellType] = newContent;
+        }
 
         return state;
+      }
 
       case ActionType.DELETE_FILE:
         state.allNodes = state.allNodes.filter(
@@ -82,14 +85,8 @@ const reducer = produce(
           name: action.payload.name,
           nodeId: randomId(),
           nodeType: 'file',
-          code: {
-            type: 'code',
-            content: '',
-          },
-          text: {
-            type: 'text',
-            content: '',
-          },
+          code: '',
+          text: '',
         };
 
         const nodeFolderIndex = state.allNodes.findIndex(
@@ -121,12 +118,26 @@ const reducer = produce(
       }
 
       case ActionType.CREATE_NODE_ATTEMPT: {
-        const { nodeType, status } = action.payload;
+        const { nodeType, status, parentNodeId } = action.payload;
 
         state.attemptToCreate = {
           status,
           nodeType,
+          parentNodeId,
         };
+        return state;
+      }
+
+      case ActionType.SELECT_FILE_FOR_VIEW: {
+        const selectedFile = state.allNodes.find(
+          (node) => node.nodeId === action.payload.nodeId
+        );
+
+        // type guard
+        if (selectedFile.nodeType === 'file') {
+          state.selectedFileToView = selectedFile;
+        }
+
         return state;
       }
 

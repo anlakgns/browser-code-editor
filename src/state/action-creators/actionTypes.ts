@@ -1,6 +1,7 @@
 export enum ActionType {
 
   CREATE_NODE_ATTEMPT = "attempt_to_create_node",
+  SELECT_FILE_FOR_VIEW = "select_file_for_view",
 
   // file actions
   DELETE_FILE = 'delete_file',

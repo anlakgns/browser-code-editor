@@ -12,7 +12,7 @@ const NodeList: React.FC = () => {
   return (
     <MainGrid>
       {nodeListArray.map((node: File | Folder, index: number) => {
-        return <NodeItem node={node} index={index} />;
+        return <NodeItem key={node.nodeId} node={node} index={index} />;
       })}
     </MainGrid>
   );

@@ -15,17 +15,17 @@ const MainGrid = styled(Grid)(({ theme }) => ({
 }));
 
 const IconFolderAdd = styled(CreateNewFolderOutlinedIcon)(({ theme }) => ({
-  color: theme.palette.custom.textGrey,
+  color: theme.palette.custom.orange,
   fontSize: '1.8rem',
 }));
 
 const IconMenu = styled(MenuOutlinedIcon)(({ theme }) => ({
-  color: theme.palette.custom.textGrey,
+  color: theme.palette.custom.orange,
   fontSize: '1.4rem',
 }));
 
 const IconFileAdd = styled(InsertDriveFileOutlinedIcon)(({ theme }) => ({
-  color: theme.palette.custom.textGrey,
+  color: theme.palette.custom.orange,
   fontSize: '1.8rem',
 }));
 
@@ -33,11 +33,11 @@ const MiniSidebar: React.FC = () => {
   const {createNodeAttempt} = useActions();
 
   const folderHandler = () => {
-    createNodeAttempt("folder", true)
+    createNodeAttempt("folder", true, "workspace")
   }
 
   const fileHandler = () => {
-    createNodeAttempt("file", true)
+    createNodeAttempt("file", true, "workspace")
   }
 
 

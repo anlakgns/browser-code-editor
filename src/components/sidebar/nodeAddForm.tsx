@@ -30,29 +30,34 @@ const FileIconStyled = styled(InsertDriveFileOutlinedIcon)(({ theme }) => ({
   marginLeft: '1.1rem',
 }));
 
-const NodeAddForm: React.FC = () => {
+interface NodeAddFormProps {
+  parentNodeId: string | 'workspace' | null;
+}
+
+const NodeAddForm: React.FC<NodeAddFormProps> = ({ parentNodeId }) => {
   const nodeAttempt = useTypedSelector((state) => state.nodes.attemptToCreate);
   const [nodeNameInput, setNodeNameInput] = useState<string>();
-  const { createFolder, createFile, createNodeAttempt } =
-    useActions();
+  const { createFolder, createFile, createNodeAttempt, createFileInFolder } = useActions();
 
   const formOnBlurHandler = (e: React.FocusEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (nodeNameInput === '') {
-      createNodeAttempt(null, false);
+      createNodeAttempt(null, false, null);
       return;
     }
 
     if (nodeAttempt.nodeType === 'folder') {
       createFolder(nodeNameInput);
-      createNodeAttempt(null, false);
+      createNodeAttempt(null, false, null);
       setNodeNameInput('');
     }
 
     if (nodeAttempt.nodeType === 'file') {
-      createFile(nodeNameInput);
-      createNodeAttempt(null, false);
+      parentNodeId === 'workspace'
+        ? createFile(nodeNameInput)
+        : createFileInFolder(parentNodeId, nodeNameInput);
+      createNodeAttempt(null, false, null);
       setNodeNameInput('');
     }
   };

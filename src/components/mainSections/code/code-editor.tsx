@@ -1,4 +1,3 @@
-import './code-editor.css';
 import '../../syntax.css';
 import { useRef } from 'react';
 import MonacoEditor, { EditorDidMount } from '@monaco-editor/react';
@@ -6,6 +5,29 @@ import prettier from 'prettier';
 import parser from 'prettier/parser-babel';
 import codeShift from 'jscodeshift';
 import Highlighter from 'monaco-jsx-highlighter';
+import Grid from '@mui/material/Grid';
+import Button from '@mui/material/Button';
+import { styled } from '@mui/material/styles';
+
+const MainGrid = styled(Grid)(({ theme }) => ({
+  background: theme.palette.custom.editorColor,
+  width: '100%',
+  height: '100%',
+  position: 'relative',
+  padding: '2rem 0rem',
+}));
+
+const FormatButton = styled(Button)(({ theme }) => ({
+  position: 'absolute',
+  backgroundColor: theme.palette.custom.orange,
+  top: '1rem',
+  width: '6rem',
+  zIndex: 1000,
+  right: '3rem',
+  fontSize: '0.7rem',
+  fontWeight: 'bold',
+  padding: '0.4rem',
+}));
 
 interface CodeEditorProps {
   initialValue: string;
@@ -64,13 +86,8 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ onChange, initialValue }) => {
   };
 
   return (
-    <div className="editor-wrapper">
-      <button
-        className="button button-format is-primary is-small"
-        onClick={onFormatClick}
-      >
-        Format
-      </button>
+    <MainGrid>
+      <FormatButton onClick={onFormatClick}>Format</FormatButton>
       <MonacoEditor
         editorDidMount={onEditorDidMount}
         value={initialValue}
@@ -88,7 +105,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ onChange, initialValue }) => {
           automaticLayout: true,
         }}
       />
-    </div>
+    </MainGrid>
   );
 };
 

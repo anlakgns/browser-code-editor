@@ -1,9 +1,6 @@
-import './code-cell.css';
-import { useEffect } from 'react';
 import CodeEditor from './code-editor';
 import { File } from '../../../state';
 import { useActions } from '../../../hooks/use-actions';
-import useTypedSelector from '../../../hooks/use-typed-selector';
 import { styled } from '@mui/material/styles';
 import Grid from '@mui/material/Grid';
 
@@ -18,27 +15,37 @@ interface CodeCellProps {
 }
 
 const CodeCell: React.FC<CodeCellProps> = ({ file }) => {
-  const { createBundle } = useActions();
-  const bundle = useTypedSelector((state) => state.bundles[file.nodeId]);
-  const fileCode = useTypedSelector((state) => {
-    let importReact: string = `
-      import React from "react"
-      import ReactDOM from "react-dom"   
-      `;
-    let allCode = importReact + file.code.content;
+  const {updateFile} = useActions()
+ 
+  console.log(file) 
 
-    return allCode;
-  });
+  return (
+    <MainGrid>
+      <CodeEditor
+        initialValue={file.code}
+        onChange={(value: string) => updateFile(file.nodeId, "code", value)}
+      />
+    </MainGrid>
+  );
+};
 
-  // Debouncing : means grouping multiple sequantial calls into one. Performance improvement.
+export default CodeCell;
+
+
+
+
+/*
+
+
+ // Debouncing : means grouping multiple sequantial calls into one. Performance improvement.
   useEffect(() => {
     if (!bundle) {
-      createBundle(file.nodeId, fileCode);
+      createBundle(file.nodeId, file.code);
       return;
     }
 
     const timer = setTimeout(async () => {
-      createBundle(file.nodeId, fileCode);
+      createBundle(file.nodeId, file.code);
     }, 750);
 
     return () => {
@@ -46,16 +53,6 @@ const CodeCell: React.FC<CodeCellProps> = ({ file }) => {
     };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fileCode, file.nodeId, createBundle]);
+  }, [file.code, file.nodeId, createBundle]);
 
-  return (
-    <MainGrid>
-      <CodeEditor
-        initialValue={file.code.content}
-        onChange={(value: string) => console.log(file.nodeId, value)}
-      />
-    </MainGrid>
-  );
-};
-
-export default CodeCell;
+*/

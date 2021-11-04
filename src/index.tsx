@@ -11,6 +11,8 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Main from './components/mainSections';
 
 const MainGrid = styled(Grid)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'row',
   background: theme.palette.custom.dark3,
   minHeight: '100vh',
   width: '100vw',
@@ -21,7 +23,7 @@ const App = () => {
     <Provider store={store}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <MainGrid container direction="row">
+        <MainGrid>
           <MiniSidebar />
           <Sidebar />
           <Main />

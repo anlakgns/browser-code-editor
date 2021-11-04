@@ -29,6 +29,9 @@ let theme = createTheme({
       dark3: '#1A1A1A',
       textGrey: '#aaaaaa',
       textWhite: '#ffffff',
+      editorColor: "#202124",
+      orange: "#fca500",
+      orangeLight: "#33fca500"
     },
   },
   
