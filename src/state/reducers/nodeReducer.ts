@@ -1,6 +1,6 @@
 import { ActionType } from '../action-creators/actionTypes';
 import { Action } from '../action-creators/actionCreatorTypes';
-import { NodeTypes, File, Folder } from '../cellNodeTypes';
+import { NodeTypes, File, Folder, FileParents } from '../cellNodeTypes';
 import { produce } from 'immer';
 
 // Here we use immer. Immer basically simplifies handling immutable data structure. In react and redux, we need to be aware of that we should use immutable objects, so it means we need to create a new object/array and should return it everytime.  The structure doesn't force us to keep that mentality so it means we are prone to make error. The immer makes this process easier and satifies these immutable restriction by itself. Also in nested objects, making immutable condition is a bit hard so immer helps us in this condition very efficiently.
@@ -14,7 +14,12 @@ interface NodeState {
     nodeType: NodeTypes | null;
     parentNodeId: string | 'workspace' | null;
   };
-  selectedFileToView: File | null;
+  selectedFileInfoToView: {
+    nodeId: string;
+    index: number;
+    parent: FileParents;
+    subIndex: number;
+  } | null;
 }
 
 const initialState: NodeState = {
@@ -24,7 +29,7 @@ const initialState: NodeState = {
     nodeType: null,
     parentNodeId: null,
   },
-  selectedFileToView: null,
+  selectedFileInfoToView: null,
 };
 
 const reducer = produce(
@@ -37,18 +42,39 @@ const reducer = produce(
           nodeType: 'file',
           code: '',
           text: '',
+          parent: 'workspace',
         };
         state.allNodes.push(newFile);
 
         return state;
 
       case ActionType.UPDATE_FILE: {
-        const { nodeId, cellType, newContent } = action.payload;
-        const nodeUpdateIndex = state.allNodes.findIndex(
-          (n) => n.nodeId === nodeId
-        );
+        const { nodeId, cellType, newContent, parent } = action.payload;
+        let file: File | Folder;
 
-        const file = state.allNodes[nodeUpdateIndex];
+        if (parent === 'workspace') {
+          const nodeUpdateIndex = state.allNodes.findIndex(
+            (n) => n.nodeId === nodeId
+          );
+          file = state.allNodes[nodeUpdateIndex];
+        }
+
+        // this means it is a subfolder
+        if (parent !== 'workspace') {
+          // don't use find method returns new array, causes issues with immer.
+          const parentIndex = state.allNodes.findIndex(
+            (n) => n.nodeId === parent
+          );
+          const parentFolder = state.allNodes[parentIndex];
+
+          if (parentFolder.nodeType === 'folder') {
+            const subFileIndex = parentFolder.files.findIndex(
+              (n) => n.nodeId === nodeId
+            );
+
+            file = parentFolder.files[subFileIndex];
+          }
+        }
 
         if (file.nodeType === 'file') {
           file[cellType] = newContent;
@@ -61,6 +87,13 @@ const reducer = produce(
         state.allNodes = state.allNodes.filter(
           (n) => n.nodeId !== action.payload.nodeId
         );
+
+        const isSelectedFile =
+          state.selectedFileInfoToView.nodeId === action.payload.nodeId;
+
+        if (isSelectedFile) {
+          state.selectedFileInfoToView = null;
+        }
 
         return state;
 
@@ -87,6 +120,7 @@ const reducer = produce(
           nodeType: 'file',
           code: '',
           text: '',
+          parent: action.payload.folderNodeId,
         };
 
         const nodeFolderIndex = state.allNodes.findIndex(
@@ -109,9 +143,16 @@ const reducer = produce(
         const folderNode = state.allNodes[nodeFolderIndex];
 
         if ('files' in folderNode) {
-          folderNode.files.filter(
+          folderNode.files = folderNode.files.filter(
             (n) => n.nodeId !== action.payload.fileNodeId
           );
+        }
+
+        const isSelectedFile =
+          state.selectedFileInfoToView?.nodeId === action.payload.fileNodeId;
+
+        if (isSelectedFile) {
+          state.selectedFileInfoToView = null;
         }
 
         return state;
@@ -128,15 +169,50 @@ const reducer = produce(
         return state;
       }
 
-      case ActionType.SELECT_FILE_FOR_VIEW: {
-        const selectedFile = state.allNodes.find(
-          (node) => node.nodeId === action.payload.nodeId
-        );
+      case ActionType.SELECT_FILE_INFO_FOR_VIEW: {
+        let nodeSelectedIndex: number;
+        let parentIndex: number;
 
-        // type guard
-        if (selectedFile.nodeType === 'file') {
-          state.selectedFileToView = selectedFile;
+        if (action.payload.parent === 'workspace') {
+          nodeSelectedIndex = state.allNodes.findIndex(
+            (n) => n.nodeId === action.payload.nodeId
+          );
         }
+
+        // this means it is a subfile.
+        if (action.payload.parent !== 'workspace') {
+          const parentFolder = state.allNodes.find(
+            (n) => n.nodeId === action.payload.parent
+          );
+          parentIndex = state.allNodes.findIndex(
+            (n) => n.nodeId === action.payload.parent
+          );
+
+          // type guard
+          if (parentFolder.nodeType === 'folder') {
+            nodeSelectedIndex = parentFolder.files.findIndex(
+              (n) => n.nodeId === action.payload.nodeId
+            );
+          }
+        }
+
+        state.selectedFileInfoToView = {
+          nodeId: action.payload.nodeId,
+          parent: action.payload.parent,
+          index: nodeSelectedIndex,
+          subIndex: parentIndex,
+        };
+
+        // Because of immutability feature of immer, i can't referance a node in all nodes, so this code doesn't work. I need to work around it
+        // ******
+        // const selectedFile = state.allNodes.find(
+        //   (node) => node.nodeId === action.payload.nodeId
+        // );
+
+        // // type guard
+        // if (selectedFile.nodeType === 'file') {
+        //   state.selectedFileToView = selectedFile;
+        // }
 
         return state;
       }

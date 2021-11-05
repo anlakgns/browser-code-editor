@@ -1,6 +1,6 @@
 import { Dispatch } from 'redux';
 import { ActionType } from './actionTypes';
-import { CellTypes, NodeTypes } from '../cellNodeTypes';
+import { CellTypes, NodeTypes, FileParents } from '../cellNodeTypes';
 import {
   CreateFileAction,
   UpdateFileAction,
@@ -10,7 +10,7 @@ import {
   CreateFileInFolderAction,
   DeleteFileInFolderAction,
   CreationNoteAttempt,
-  SelectFileForView,
+  SelectFileInfoForView,
   Action,
 } from './actionCreatorTypes';
 import bundle from '../../bundler';
@@ -27,7 +27,8 @@ export const createFile = (name: string): CreateFileAction => {
 export const updateFile = (
   nodeId: string,
   cellType: CellTypes,
-  newContent: string
+  newContent: string,
+  parent: FileParents
 ): UpdateFileAction => {
   return {
     type: ActionType.UPDATE_FILE,
@@ -35,6 +36,7 @@ export const updateFile = (
       nodeId,
       cellType,
       newContent,
+      parent,
     },
   };
 };
@@ -107,11 +109,15 @@ export const createNodeAttempt = (
   };
 };
 
-export const selectFileForView = (nodeId: string): SelectFileForView => {
+export const selectFileForView = (
+  nodeId: string,
+  parent: FileParents
+): SelectFileInfoForView => {
   return {
-    type: ActionType.SELECT_FILE_FOR_VIEW,
+    type: ActionType.SELECT_FILE_INFO_FOR_VIEW,
     payload: {
       nodeId,
+      parent,
     },
   };
 };

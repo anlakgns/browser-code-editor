@@ -1,5 +1,5 @@
 import { ActionType } from './actionTypes';
-import { NodeTypes, CellTypes } from '../cellNodeTypes';
+import { NodeTypes, CellTypes, FileParents } from '../cellNodeTypes';
 
 // Action Creator : File
 export interface CreateFileAction {
@@ -21,6 +21,7 @@ export interface UpdateFileAction {
     nodeId: string;
     cellType: CellTypes;
     newContent: string;
+    parent: FileParents;
   };
 }
 
@@ -64,10 +65,11 @@ export interface CreationNoteAttempt {
   };
 }
 
-export interface SelectFileForView {
-  type: ActionType.SELECT_FILE_FOR_VIEW;
+export interface SelectFileInfoForView {
+  type: ActionType.SELECT_FILE_INFO_FOR_VIEW;
   payload: {
     nodeId: string;
+    parent: FileParents;
   };
 }
 
@@ -99,4 +101,4 @@ export type Action =
   | DeleteFileInFolderAction
   | BundleStartAction
   | BundleCompleteAction
-  | SelectFileForView;
+  | SelectFileInfoForView;
