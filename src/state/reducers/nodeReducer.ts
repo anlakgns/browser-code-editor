@@ -7,6 +7,38 @@ import { produce } from 'immer';
 
 // All types return state, it is meanningles with immer but we do it because of typescript. It thinks the reducers may return undefined if we dont do that.
 
+const html = `
+  <html>
+    <head>
+      <style> html {background-color: white;} </style>
+    </head>
+    <body>
+      <div id="root"></div>
+      <script>
+
+        const handleError = (err) => {
+          const root = document.querySelector('#root')
+          root.innerHTML = '<div style="color: red"><h4>Runtime Error</h4>' + err + '</div>'
+          console.error(err)
+        }
+
+        window.addEventListener('error', (event)=> {
+          event.preventDefault()
+          handleError(event.error)
+        })
+
+        window.addEventListener('message', (event) => {
+          try {
+            eval(event.data)
+          } catch(err) {
+            handleError(err)
+          }
+        });
+      </script>
+    </body>
+  </html>
+  `;
+
 interface NodeState {
   allNodes: (File | Folder)[];
   attemptToCreate: {
@@ -23,7 +55,38 @@ interface NodeState {
 }
 
 const initialState: NodeState = {
-  allNodes: [],
+  allNodes: [
+    {
+      name: 'src',
+      nodeId: 'src',
+      nodeType: 'folder',
+      files: [
+        {
+          name: 'index.js',
+          nodeId: 'entryPoint',
+          nodeType: 'file',
+          code: '',
+          text: '',
+          parent: 'src',
+        },
+      ],
+    },
+    {
+      name: 'public',
+      nodeId: 'public',
+      nodeType: 'folder',
+      files: [
+        {
+          name: 'index.html',
+          nodeId: 'html',
+          nodeType: 'file',
+          code: html,
+          text: '',
+          parent: 'public',
+        },
+      ],
+    },
+  ],
   attemptToCreate: {
     status: false,
     nodeType: null,
@@ -68,7 +131,7 @@ const reducer = produce(
           const parentFolder = state.allNodes[parentIndex];
 
           if (parentFolder.nodeType === 'folder') {
-            const subFileIndex = parentFolder.files.findIndex(
+            const subFileIndex = parentFolder.files?.findIndex(
               (n) => n.nodeId === nodeId
             );
 
@@ -199,8 +262,8 @@ const reducer = produce(
         state.selectedFileInfoToView = {
           nodeId: action.payload.nodeId,
           parent: action.payload.parent,
-          index: nodeSelectedIndex,
-          subIndex: parentIndex,
+          index: parentIndex,
+          subIndex: nodeSelectedIndex,
         };
 
         // Because of immutability feature of immer, i can't referance a node in all nodes, so this code doesn't work. I need to work around it

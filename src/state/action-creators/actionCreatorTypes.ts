@@ -76,15 +76,11 @@ export interface SelectFileInfoForView {
 // Action Creator : Bundle
 export interface BundleStartAction {
   type: ActionType.BUNDLE_START;
-  payload: {
-    nodeId: string;
-  };
 }
 
 export interface BundleCompleteAction {
   type: ActionType.BUNDLE_COMPLETE;
   payload: {
-    nodeId: string;
     bundle: string;
     err: string;
   };

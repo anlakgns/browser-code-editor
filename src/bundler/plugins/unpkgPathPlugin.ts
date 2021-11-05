@@ -40,10 +40,24 @@ export const unpkgPathPlugin = () => {
 
       // path finder : root package such as 'react' vs...
       build.onResolve({ filter: /.*/ }, async (args: any) => {
-        return {
-          namespace: 'a',
-          path: `https://unpkg.com/${args.path}`,
-        };
+        console.log(args);
+
+        // resolve the path for third party package
+        if (!args.path.startsWith('browser')) {
+          return {
+            namespace: 'a',
+            path: `https://unpkg.com/${args.path}`,
+          };
+        }
+
+        // resolve the path for virtual file system
+        if (args.path.startsWith('browser')) {
+          return {
+            namespace: 'a',
+            path: `browser`,
+          };
+        }
+
       });
     },
   };

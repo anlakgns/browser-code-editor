@@ -3,10 +3,9 @@ import { unpkgPathPlugin } from './plugins/unpkgPathPlugin';
 import { fetchPlugin } from './plugins/fetch-plugin';
 
 let service: esbuild.Service;
-const bundle = async (rawCode: string) => {
-  
+const bundle = async (entry: string, allCode: object) => {
   if (!service) {
-    // The service object here is going to do all stuff bundling and tranforming/transpiling. We need it anyway. This is the way we can be sure we have it always. The service object will return us 4 function so that we can use : build, serve, stop and transform. We will use build and transform. Transform just do transpiling not any bundling. Bundle function is self-explanatory. 
+    // The service object here is going to do all stuff bundling and tranforming/transpiling. We need it anyway. This is the way we can be sure we have it always. The service object will return us 4 function so that we can use : build, serve, stop and transform. We will use build and transform. Transform just do transpiling not any bundling. Bundle function is self-explanatory.
     service = await esbuild.startService({
       worker: true,
 
@@ -22,7 +21,8 @@ const bundle = async (rawCode: string) => {
       bundle: true,
       write: false,
       // the order in plugins matters.
-      plugins: [unpkgPathPlugin(), fetchPlugin(rawCode)],
+      // we will give input the index.js only here and later help esbuild to find the correct paths and loads.
+      plugins: [unpkgPathPlugin(), fetchPlugin(entry, allCode)],
       define: {
         'process.env.NODE_ENV': '"production"', // to fix a bug
         global: 'window', // to fix a bug
@@ -32,13 +32,13 @@ const bundle = async (rawCode: string) => {
     // bundled code.
     return {
       code: result.outputFiles[0].text,
-      err: ""
-    }
+      err: '',
+    };
   } catch (err) {
     return {
-      code: "",
+      code: '',
       err: err.message,
-    }
+    };
   }
 };
 

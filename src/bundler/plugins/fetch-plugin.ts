@@ -10,7 +10,7 @@ const fileCache = localForage.createInstance({
 });
 
 // this will be called always before build method.
-export const fetchPlugin = (inputCode: string) => {
+export const fetchPlugin = (entry: string, allCode: object) => {
   return {
     name: 'fetchPlugin',
     setup(build: esbuild.PluginBuild) {
@@ -19,7 +19,7 @@ export const fetchPlugin = (inputCode: string) => {
       build.onLoad({ filter: /(^index\.js$)/ }, () => {
         return {
           loader: 'jsx',
-          contents: inputCode,
+          contents: entry,
         };
       });
 
@@ -68,15 +68,26 @@ export const fetchPlugin = (inputCode: string) => {
 
       // loader for plain javascript files.
       build.onLoad({ filter: /.*/ }, async (args: any) => {
-        const { data, request } = await axios.get(args.path);
-        const result: esbuild.OnLoadResult = {
-          loader: 'jsx',
-          contents: data,
-          resolveDir: new URL('./', request.responseURL).pathname,
-        };
+        let result: esbuild.OnLoadResult;
 
-        // store it in cached
-        await fileCache.setItem(args.path, result);
+        if (!args.path.startsWith('browser')) {
+          const { data, request } = await axios.get(args.path);
+          result = {
+            loader: 'jsx',
+            contents: data,
+            resolveDir: new URL('./', request.responseURL).pathname,
+          };
+        }
+
+        if (args.path.startsWith('browser')) {
+          result = {
+            loader: 'jsx',
+            contents: ' const deniz = 5; export default deniz',
+          };
+        }
+
+        // // store it in cached
+        // await fileCache.setItem(args.path, result);
 
         return result;
       });

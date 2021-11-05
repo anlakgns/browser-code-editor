@@ -122,21 +122,17 @@ export const selectFileForView = (
   };
 };
 
-export const createBundle = (nodeId: string, input: string) => {
+export const createBundle = (entry: string, allCode: object) => {
   return async (dispatch: Dispatch<Action>) => {
     dispatch({
       type: ActionType.BUNDLE_START,
-      payload: {
-        nodeId,
-      },
     });
 
-    const result = await bundle(input);
+    const result = await bundle(entry, allCode);
 
     dispatch({
       type: ActionType.BUNDLE_COMPLETE,
       payload: {
-        nodeId,
         bundle: result.code,
         err: result.err,
       },

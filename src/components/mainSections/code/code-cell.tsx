@@ -22,8 +22,6 @@ const CodeCell: React.FC<CodeCellProps> = ({ file }) => {
   const onChangeHandler = (value: string): void => {
     setEditorCode(value);
   };
-  console.log(file);
-  console.log('reder');
   useEffect(() => {
     // this way, prevented code deletion resulted from file change.
     updateFile(file.nodeId, 'code', editorCode, file.parent);
@@ -40,26 +38,3 @@ const CodeCell: React.FC<CodeCellProps> = ({ file }) => {
 };
 
 export default CodeCell;
-
-/*
-
-
- // Debouncing : means grouping multiple sequantial calls into one. Performance improvement.
-  useEffect(() => {
-    if (!bundle) {
-      createBundle(file.nodeId, file.code);
-      return;
-    }
-
-    const timer = setTimeout(async () => {
-      createBundle(file.nodeId, file.code);
-    }, 750);
-
-    return () => {
-      clearTimeout(timer);
-    };
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [file.code, file.nodeId, createBundle]);
-
-*/

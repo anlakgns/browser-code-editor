@@ -5,7 +5,7 @@ import { combineReducers } from 'redux';
 
 const reducers = combineReducers({
   nodes: nodeReducer,
-  bundles: bundleReducer
+  bundle: bundleReducer
 });
 
 export default reducers;
