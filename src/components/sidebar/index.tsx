@@ -8,7 +8,7 @@ import NodeAddForm from './nodeAddForm';
 const MainGrid = styled(Grid)(({ theme }) => ({
   background: theme.palette.custom.dark2,
   width: '18rem',
-  minWidth: "15rem",
+  minWidth: '15rem',
   resize: 'horizontal',
   overflow: 'auto',
   display: 'flex',
@@ -41,7 +41,7 @@ const Sidebar: React.FC = () => {
       </HeadlineGrid>
       {nodeAttempt.status === true &&
       nodeAttempt.parentNodeId === 'workspace' ? (
-        <NodeAddForm parentNodeId="workspace" />
+          <NodeAddForm parentNodeId="workspace" />
       ) : (
         ''
       )}

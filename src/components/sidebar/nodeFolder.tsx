@@ -12,10 +12,11 @@ import NodeFile from './nodeFile';
 import NodeAddForm from './nodeAddForm';
 import useTypedSelector from '../../hooks/use-typed-selector';
 import { useActions } from '../../hooks/use-actions';
+import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 
 const MainGrid = styled(Grid)(({ theme }) => ({}));
 const SubFilesGrid = styled(Grid)(({ theme }) => ({
-  marginLeft: "1rem"
+  marginLeft: '1rem',
 }));
 const LineGrid = styled(Grid)(({ theme }) => ({
   display: 'flex',
@@ -67,6 +68,15 @@ const IconButtonAddFile = styled(IconButton)(({ theme }) => ({
   margin: 0,
   color: theme.palette.custom.textGrey,
 }));
+const IconButtonDeleteFolder = styled(IconButton)(({ theme }) => ({
+  padding: 0,
+  margin: 0,
+  color: theme.palette.custom.textGrey,
+}));
+const IconFolderDelete = styled(HighlightOffIcon)(({ theme }) => ({
+  color: theme.palette.custom.textGrey,
+  fontSize: '1.2rem',
+}));
 const IconFileAdd = styled(InsertDriveFileOutlinedIcon)(({ theme }) => ({
   color: theme.palette.custom.textGrey,
   fontSize: '1.2rem',
@@ -79,7 +89,7 @@ interface NodeFolderProps {
 const NodeFolder: React.FC<NodeFolderProps> = ({ node }) => {
   const [isFolderOpen, setIsFolderOpen] = useState<Boolean>(false);
   const nodeAttempt = useTypedSelector((state) => state.nodes.attemptToCreate);
-  const { createNodeAttempt } = useActions();
+  const { createNodeAttempt, deleteFolder } = useActions();
 
   const subFiles = node.files;
 
@@ -89,6 +99,11 @@ const NodeFolder: React.FC<NodeFolderProps> = ({ node }) => {
 
   const addFileInFolderHandler = () => {
     createNodeAttempt('file', true, node.nodeId);
+    setIsFolderOpen(true);
+  };
+
+  const deleteFolderHandler = () => {
+    deleteFolder(node.nodeId);
   };
 
   return (
@@ -106,6 +121,9 @@ const NodeFolder: React.FC<NodeFolderProps> = ({ node }) => {
           <IconButtonAddFile onClick={addFileInFolderHandler}>
             <IconFileAdd />
           </IconButtonAddFile>
+          <IconButtonDeleteFolder onClick={deleteFolderHandler}>
+            <IconFolderDelete />
+          </IconButtonDeleteFolder>
         </RightLineGrid>
       </LineGrid>
       {nodeAttempt.status === true &&

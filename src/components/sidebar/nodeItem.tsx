@@ -8,18 +8,15 @@ const MainGrid = styled(Grid)(({ theme }) => ({}));
 
 interface NodeItemProps {
   node: File | Folder;
-  index: number;
 }
 
-const NodeItem: React.FC<NodeItemProps> = ({ node, index }) => {
-  
-
+const NodeItem: React.FC<NodeItemProps> = ({ node }) => {
   return (
     <MainGrid>
       {node.nodeType === 'folder' ? (
-        <NodeFolder node={node}/>
+        <NodeFolder node={node} />
       ) : (
-        <NodeFile node={node}  />
+        <NodeFile node={node} />
       )}
     </MainGrid>
   );

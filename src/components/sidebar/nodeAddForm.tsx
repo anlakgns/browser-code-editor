@@ -1,13 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { styled } from '@mui/material/styles';
 import Grid from '@mui/material/Grid';
-import TextField from '@mui/material/TextField';
 import useTypedSelector from '../../hooks/use-typed-selector';
 import FolderIcon from '@mui/icons-material/Folder';
 import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined';
 import { useActions } from '../../hooks/use-actions';
 
-const MainGrid = styled(Grid)(({ theme }) => ({}));
+const MainGrid = styled(Grid)(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  marginLeft: '1.2rem',
+  marginBottom: '1rem',
+}));
 
 const LineGrid = styled(Grid)(({ theme }) => ({
   display: 'flex',
@@ -15,6 +19,7 @@ const LineGrid = styled(Grid)(({ theme }) => ({
   alignItems: 'center',
   padding: '0.1rem 1.5rem',
   justifyContent: 'space-between',
+  width: "100%"
 }));
 
 const FolderIconStyled = styled(FolderIcon)(({ theme }) => ({
@@ -27,7 +32,20 @@ const FileIconStyled = styled(InsertDriveFileOutlinedIcon)(({ theme }) => ({
   color: theme.palette.secondary.main,
   fontSize: '1.2rem',
   marginRight: '0.4rem',
-  marginLeft: '1.1rem',
+}));
+
+const InputStyled = styled('input')(({ theme }) => ({
+  lineHeight: '0.8rem',
+  outline: 'none',
+  borderColor: theme.palette.custom.orange,
+  backgroundColor: 'transparent',
+  borderRadius: '0.2rem',
+  color: theme.palette.custom.orange,
+  width: "100%"
+}));
+
+const FormStyled = styled('form')(({ theme }) => ({
+  width: "100%"
 }));
 
 interface NodeAddFormProps {
@@ -37,10 +55,15 @@ interface NodeAddFormProps {
 const NodeAddForm: React.FC<NodeAddFormProps> = ({ parentNodeId }) => {
   const nodeAttempt = useTypedSelector((state) => state.nodes.attemptToCreate);
   const [nodeNameInput, setNodeNameInput] = useState<string>();
-  const { createFolder, createFile, createNodeAttempt, createFileInFolder } = useActions();
+  const { createFolder, createFile, createNodeAttempt, createFileInFolder } =
+    useActions();
 
-  const formOnBlurHandler = (e: React.FocusEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const formHandler = (
+    e: React.FocusEvent<HTMLFormElement> | React.KeyboardEvent<HTMLFormElement>
+  ) => {
+    if ('charCode' in e && e.key !== 'Enter') {
+      return;
+    }
 
     if (nodeNameInput === '') {
       createNodeAttempt(null, false, null);
@@ -70,18 +93,16 @@ const NodeAddForm: React.FC<NodeAddFormProps> = ({ parentNodeId }) => {
         ) : (
           <FileIconStyled />
         )}
-        <form onBlur={formOnBlurHandler}>
-          <TextField
+        <FormStyled onBlur={formHandler} onKeyPress={formHandler}>
+          <InputStyled
             value={nodeNameInput}
             onChange={(e: React.ChangeEvent<HTMLInputElement>): void =>
               setNodeNameInput(e.target.value)
             }
-            autoFocus={true}
+            autoFocus
             id="standard-basic"
-            label="Standard"
-            variant="standard"
           />
-        </form>
+        </FormStyled>
       </LineGrid>
     </MainGrid>
   );

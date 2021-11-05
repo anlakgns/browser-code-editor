@@ -11,8 +11,8 @@ const NodeList: React.FC = () => {
 
   return (
     <MainGrid>
-      {nodeListArray.map((node: File | Folder, index: number) => {
-        return <NodeItem key={node.nodeId} node={node} index={index} />;
+      {nodeListArray.map((node: File | Folder) => {
+        return <NodeItem key={node.nodeId} node={node} />;
       })}
     </MainGrid>
   );
