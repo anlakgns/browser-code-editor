@@ -1,26 +1,18 @@
 import { styled } from '@mui/material/styles';
 import Grid from '@mui/material/Grid';
 import CodeCell from './code/code-cell';
-import useTypedSelector from '../../hooks/use-typed-selector';
 import Topbar from './topbar';
 import { useState, useEffect } from 'react';
 import Preview from '../mainSections/view/preview';
+import useTypedSelector from '../../hooks/use-typed-selector';
 import { useActions } from '../../hooks/use-actions';
+import { File, Folder } from '../../state/cellNodeTypes';
+import WelcomeGuide from './welcomeGuide';
 
 const MainGrid = styled(Grid)(({ theme }) => ({
   display: 'flex',
   flexGrow: 1,
   flexDirection: 'column',
-}));
-
-const WelcomeGrid = styled(Grid)(({ theme }) => ({
-  display: 'flex',
-  width: '100%',
-  justifyContent: 'center',
-  alignItems: 'center',
-  fontSize: '2rem',
-  color: 'orange',
-  marginTop: '5rem',
 }));
 
 enum ViewStateEnum {
@@ -37,7 +29,7 @@ const Main: React.FC = () => {
   // for preview
   const entryPointRawCode = useTypedSelector((state) => {
     let rawCode: string;
-    const srcFolderNode = state.nodes.allNodes.find((n) => n.nodeId === 'src');
+    const srcFolderNode = state.nodes.allNodes.find((n) => n.nodeId === 'main');
 
     // type guard
     if (srcFolderNode.nodeType === 'folder') {
@@ -48,17 +40,20 @@ const Main: React.FC = () => {
   });
   const { createBundle } = useActions();
   const bundle = useTypedSelector((state) => state.bundle);
-  const allCode = useTypedSelector(state => state.nodes.allNodes)
-
+  const allNodes = useTypedSelector((state) => state.nodes.allNodes);
   // Debouncing : means grouping multiple sequantial calls into one. Performance improvement.
+
+  const doBundle = () => {
+    createBundle(entryPointRawCode, allNodes as (File | Folder)[]);
+  };
   useEffect(() => {
     if (!bundle.code) {
-      createBundle(entryPointRawCode, allCode);
+      doBundle();
       return;
     }
 
     const timer = setTimeout(async () => {
-      createBundle(entryPointRawCode, allCode);
+      doBundle();
     }, 750);
 
     return () => {
@@ -96,14 +91,17 @@ const Main: React.FC = () => {
     switch (viewState) {
       case ViewStateEnum.code:
         return (
-          <CodeCell file={selectedFile?.nodeType === 'file' && selectedFile} />
+          <CodeCell
+            doBundle={doBundle}
+            file={selectedFile?.nodeType === 'file' && selectedFile}
+          />
         );
 
       case ViewStateEnum.preview:
         return <Preview code={bundle.code} err={bundle.err} />;
 
       case ViewStateEnum.default:
-        return <WelcomeGrid>Welcome to Nix Browser Editor</WelcomeGrid>;
+        return <WelcomeGuide />;
     }
   };
 

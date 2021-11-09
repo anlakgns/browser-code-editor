@@ -1,6 +1,7 @@
 import * as esbuild from 'esbuild-wasm';
 import axios from 'axios';
 import localForage from 'localforage';
+import { File, Folder } from '../../state/cellNodeTypes';
 
 // we override the paths in unpkgPathPlugin as we want, now time to override the load/fetch feature.
 
@@ -10,7 +11,7 @@ const fileCache = localForage.createInstance({
 });
 
 // this will be called always before build method.
-export const fetchPlugin = (entry: string, allCode: object) => {
+export const fetchPlugin = (entry: string, allNodes: (File | Folder)[]) => {
   return {
     name: 'fetchPlugin',
     setup(build: esbuild.PluginBuild) {
@@ -23,9 +24,12 @@ export const fetchPlugin = (entry: string, allCode: object) => {
         };
       });
 
-      // kind of middleware for checking cache
-      // not : if we don't return anything, it will keep looking the onload functions till have a return. If it can't find, it will throw an error.
+      // kind of middleware for caching third parties
       build.onLoad({ filter: /.*/ }, async (args: any) => {
+        if (args.path.startsWith('browser')) {
+          return;
+        }
+
         // Checked cached first
         const cachedResult = await fileCache.getItem<esbuild.OnLoadResult>(
           args.path
@@ -37,7 +41,7 @@ export const fetchPlugin = (entry: string, allCode: object) => {
         }
       });
 
-      // loader for css files
+      // loader for css third parties such as bulma.css
       build.onLoad({ filter: /.css$/ }, async (args: any) => {
         const { data, request } = await axios.get(args.path);
 
@@ -70,6 +74,7 @@ export const fetchPlugin = (entry: string, allCode: object) => {
       build.onLoad({ filter: /.*/ }, async (args: any) => {
         let result: esbuild.OnLoadResult;
 
+        // third party packege
         if (!args.path.startsWith('browser')) {
           const { data, request } = await axios.get(args.path);
           result = {
@@ -77,17 +82,37 @@ export const fetchPlugin = (entry: string, allCode: object) => {
             contents: data,
             resolveDir: new URL('./', request.responseURL).pathname,
           };
+
+          // store it in cached
+          await fileCache.setItem(args.path, result);
         }
 
+        // inner file
         if (args.path.startsWith('browser')) {
+          let viewCode: string;
+          const pathArray = args.path.split('/');
+          const nodes: (File | Folder)[] = allNodes;
+          const viewNode = nodes.find((n) => n.name === pathArray[1]);
+
+          // for nested folder feature, this can work recursively
+          if (viewNode.nodeType === 'folder') {
+            const viewFile = viewNode.files.find(
+              (n) => n.name === pathArray[2]
+            );
+            viewFile === undefined
+              ? (viewCode = '')
+              : (viewCode = viewFile.code);
+          }
+
+          if (viewNode.nodeType === 'file') {
+            viewCode = viewNode.code;
+          }
+
           result = {
             loader: 'jsx',
-            contents: ' const deniz = 5; export default deniz',
+            contents: viewCode,
           };
         }
-
-        // // store it in cached
-        // await fileCache.setItem(args.path, result);
 
         return result;
       });

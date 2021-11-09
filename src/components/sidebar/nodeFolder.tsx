@@ -133,7 +133,9 @@ const NodeFolder: React.FC<NodeFolderProps> = ({ node }) => {
         ''
       )}
       <SubFilesGrid>
-        {isFolderOpen ? subFiles.map((file) => <NodeFile node={file} />) : ''}
+        {isFolderOpen
+          ? subFiles.map((file) => <NodeFile key={file.nodeId} node={file} />)
+          : ''}
       </SubFilesGrid>
     </MainGrid>
   );

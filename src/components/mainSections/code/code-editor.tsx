@@ -2,12 +2,13 @@ import '../../syntax.css';
 import { useRef } from 'react';
 import MonacoEditor, { EditorDidMount } from '@monaco-editor/react';
 import prettier from 'prettier';
-import parser from 'prettier/parser-babel';
+import parserBabel from 'prettier/parser-babel';
+import parserHTML from 'prettier/parser-html';
 import codeShift from 'jscodeshift';
 import Highlighter from 'monaco-jsx-highlighter';
 import Grid from '@mui/material/Grid';
-import Button from '@mui/material/Button';
 import { styled } from '@mui/material/styles';
+import { FileFormat } from '../../../state/cellNodeTypes';
 
 const MainGrid = styled(Grid)(({ theme }) => ({
   background: theme.palette.custom.editorColor,
@@ -17,7 +18,7 @@ const MainGrid = styled(Grid)(({ theme }) => ({
   padding: '2rem 0rem',
 }));
 
-const FormatButton = styled(Button)(({ theme }) => ({
+const FormatButton = styled('button')(({ theme }) => ({
   position: 'absolute',
   backgroundColor: theme.palette.custom.orange,
   top: '1rem',
@@ -27,14 +28,57 @@ const FormatButton = styled(Button)(({ theme }) => ({
   fontSize: '0.7rem',
   fontWeight: 'bold',
   padding: '0.4rem',
+  border: 'none',
+  outline: 'none',
+  borderRadius: '0.2rem',
+  cursor: 'pointer',
+  transition: 'transform 0.3s ease-in',
+  '&:hover': {
+    backgroundColor: theme.palette.custom.dark2,
+    color: theme.palette.custom.orange,
+  },
+  '&:active': {
+    transform: 'translate(0px, 5px)',
+  },
+}));
+
+const BundleButton = styled('button')(({ theme }) => ({
+  position: 'absolute',
+  backgroundColor: theme.palette.custom.orange,
+  top: '4rem',
+  width: '6rem',
+  zIndex: 1000,
+  right: '3rem',
+  fontSize: '0.7rem',
+  fontWeight: 'bold',
+  padding: '0.4rem',
+  border: 'none',
+  outline: 'none',
+  borderRadius: '0.2rem',
+  cursor: 'pointer',
+  transition: 'transform 0.3s ease-in',
+  '&:hover': {
+    backgroundColor: theme.palette.custom.dark2,
+    color: theme.palette.custom.orange,
+  },
+  '&:active': {
+    transform: 'translate(0px, 5px)',
+  },
 }));
 
 interface CodeEditorProps {
   initialValue: string;
   onChange(value: string): void;
+  fileFormat: FileFormat;
+  doBundle: () => void;
 }
 
-const CodeEditor: React.FC<CodeEditorProps> = ({ onChange, initialValue }) => {
+const CodeEditor: React.FC<CodeEditorProps> = ({
+  onChange,
+  initialValue,
+  fileFormat,
+  doBundle,
+}) => {
   // for setting and getting value from editor.
   const editorRef = useRef<any>();
 
@@ -65,33 +109,40 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ onChange, initialValue }) => {
     );
   };
 
+  const prettierParser = fileFormat === 'javascript' ? 'babel' : 'html';
   // Prettier for formatting
   const onFormatClick = () => {
-    // get current value from editor
-    const unformatted = editorRef.current.getModel().getValue();
+    try {
+      // get current value from editor
+      const unformatted = editorRef.current.getModel().getValue();
 
-    // format the value
-    const formatted = prettier
-      .format(unformatted, {
-        parser: 'babel',
-        plugins: [parser],
-        useTabs: false,
-        semi: true,
-        singleQuote: true,
-      })
-      .replace(/\n$/, ''); // delete new line
+      // format the value
+      const formatted = prettier
+        .format(unformatted, {
+          parser: prettierParser,
+          plugins: [parserBabel, parserHTML],
+          useTabs: false,
+          semi: true,
+          singleQuote: true,
+        })
+        .replace(/\n$/, ''); // delete new line
 
-    // set the formatted value back in the editor.
-    editorRef.current.setValue(formatted);
+      // set the formatted value back in the editor.
+      editorRef.current.setValue(formatted);
+    } catch (err) {
+      // causes to crash app often. That's why we catch err.
+      console.log(err);
+    }
   };
 
   return (
     <MainGrid>
       <FormatButton onClick={onFormatClick}>Format</FormatButton>
+      <BundleButton onClick={doBundle}>Re-Bundle</BundleButton>
       <MonacoEditor
         editorDidMount={onEditorDidMount}
         value={initialValue}
-        language="javascript"
+        language={fileFormat}
         theme="dark"
         height="100%"
         options={{

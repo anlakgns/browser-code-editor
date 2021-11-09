@@ -1,6 +1,6 @@
 import { Dispatch } from 'redux';
 import { ActionType } from './actionTypes';
-import { CellTypes, NodeTypes, FileParents } from '../cellNodeTypes';
+import { CellTypes, NodeTypes, FileParents, File, Folder } from '../cellNodeTypes';
 import {
   CreateFileAction,
   UpdateFileAction,
@@ -122,13 +122,13 @@ export const selectFileForView = (
   };
 };
 
-export const createBundle = (entry: string, allCode: object) => {
+export const createBundle = (entry: string, allNodes: (File | Folder)[]) => {
   return async (dispatch: Dispatch<Action>) => {
     dispatch({
       type: ActionType.BUNDLE_START,
     });
 
-    const result = await bundle(entry, allCode);
+    const result = await bundle(entry, allNodes);
 
     dispatch({
       type: ActionType.BUNDLE_COMPLETE,

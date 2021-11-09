@@ -13,9 +13,10 @@ const MainGrid = styled(Grid)(({ theme }) => ({
 
 interface CodeCellProps {
   file: File | null;
+  doBundle: () => void;
 }
 
-const CodeCell: React.FC<CodeCellProps> = ({ file }) => {
+const CodeCell: React.FC<CodeCellProps> = ({ file, doBundle }) => {
   const { updateFile } = useActions();
   const [editorCode, setEditorCode] = useState<string>(file.code);
 
@@ -23,15 +24,16 @@ const CodeCell: React.FC<CodeCellProps> = ({ file }) => {
     setEditorCode(value);
   };
   useEffect(() => {
-    // this way, prevented code deletion resulted from file change.
     updateFile(file.nodeId, 'code', editorCode, file.parent);
   }, [editorCode]);
 
   return (
     <MainGrid>
       <CodeEditor
+        doBundle={doBundle}
         initialValue={file.code}
         onChange={(value: string) => onChangeHandler(value)}
+        fileFormat={file.fileFormat}
       />
     </MainGrid>
   );

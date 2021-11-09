@@ -18,7 +18,7 @@ declare module '@mui/material/styles' {
 let theme = createTheme({
   palette: {
     primary: {
-      main: '#242424',
+      main: '#fca500',
     },
     secondary: {
       main: '#007fd4',
@@ -29,12 +29,11 @@ let theme = createTheme({
       dark3: '#1A1A1A',
       textGrey: '#aaaaaa',
       textWhite: '#ffffff',
-      editorColor: "#202124",
-      orange: "#fca500",
-      orangeLight: "#33fca500"
+      editorColor: '#202124',
+      orange: '#fca500',
+      orangeLight: '#33fca500',
     },
   },
-  
 });
 
 theme = responsiveFontSizes(theme);

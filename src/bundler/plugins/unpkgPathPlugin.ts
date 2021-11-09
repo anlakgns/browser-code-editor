@@ -1,7 +1,7 @@
 import * as esbuild from 'esbuild-wasm';
 
-// These plugin is created for the sole purpose of the feature we want to import libraries with a syntax
-// such as  ** import React from "react" **
+// These plugin is created for the sole purpose of overriding path resolver.
+// we want fetch third parties from unpkg and virtual file structure in browser.
 
 export const unpkgPathPlugin = () => {
   return {
@@ -40,8 +40,6 @@ export const unpkgPathPlugin = () => {
 
       // path finder : root package such as 'react' vs...
       build.onResolve({ filter: /.*/ }, async (args: any) => {
-        console.log(args);
-
         // resolve the path for third party package
         if (!args.path.startsWith('browser')) {
           return {
@@ -54,10 +52,9 @@ export const unpkgPathPlugin = () => {
         if (args.path.startsWith('browser')) {
           return {
             namespace: 'a',
-            path: `browser`,
+            path: args.path,
           };
         }
-
       });
     },
   };

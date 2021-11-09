@@ -7,10 +7,12 @@ import { produce } from 'immer';
 
 // All types return state, it is meanningles with immer but we do it because of typescript. It thinks the reducers may return undefined if we dont do that.
 
-const html = `
-  <html>
+const html = `<!-- This is your default html for your preview. Please do not change if you are totally aware of what you are doing. I highly do not recommend the changes here, because application is not stable yet.  --> 
+
+
+<html>
     <head>
-      <style> html {background-color: white;} </style>
+      <style> html, body {background-color: white; padding:0; margin:0;} #root {background-color: white} </style>
     </head>
     <body>
       <div id="root"></div>
@@ -54,20 +56,102 @@ interface NodeState {
   } | null;
 }
 
+const defaultIndex = `import React from 'react';
+import ReactDOM from 'react-dom';
+import WelcomeCard from 'browser/main/welcomeCard';
+// import 'bulmaswatch/superhero/bulmaswatch.min.css';
+
+const mainStyle = {
+  backgroundColor: '#273035',
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
+  alignItems: 'center',
+  height: '100vh',
+  width: '100%',
+};
+
+const App = () => {
+  return (
+    <div style={mainStyle}>
+      <WelcomeCard />
+    </div>
+  );
+};
+
+ReactDOM.render(<App />, document.querySelector('#root'));`;
+
+
+const welcomeCard = `import React from 'react';
+
+const mainStyle = {
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'flex-start',
+  width: "50%",
+  gap: "0.5rem"
+};
+
+const headline1 = {
+  fontWeight: "bold",
+  fontSize:"1.2rem",
+  color: "#FBAF20"
+}
+
+const headline2 = {
+  fontWeight: "bold",
+  fontSize:"3rem",
+  color: "white"
+}
+
+const description = {
+  fontSize:"1rem",
+  color: "white",
+  opacity: 0.5
+}
+
+const WelcomeCard = () => {
+  return (
+    <div style={mainStyle}>
+      <div style={headline1}> Hello, this is your default preview</div>
+      <div style={headline2}>Nix React Editor</div>
+      <div style={description}>
+        The app is not stable yet. If you follow the guide there will not be a
+        problem. If you encounter any unexcepted problem please contact with me
+        with the email : anilakgunes@gmail.com
+      </div>
+    </div>
+  );
+};
+
+export default WelcomeCard
+
+`
+
 const initialState: NodeState = {
   allNodes: [
     {
-      name: 'src',
-      nodeId: 'src',
+      name: 'main',
+      nodeId: 'main',
       nodeType: 'folder',
       files: [
         {
-          name: 'index.js',
+          name: 'index',
           nodeId: 'entryPoint',
           nodeType: 'file',
-          code: '',
+          fileFormat: 'javascript',
+          code: defaultIndex,
           text: '',
-          parent: 'src',
+          parent: 'main',
+        },
+        {
+          name: 'welcomeCard',
+          nodeId: 'welcomeCard',
+          nodeType: 'file',
+          fileFormat: 'javascript',
+          code: welcomeCard,
+          text: '',
+          parent: 'main',
         },
       ],
     },
@@ -80,6 +164,7 @@ const initialState: NodeState = {
           name: 'index.html',
           nodeId: 'html',
           nodeType: 'file',
+          fileFormat: 'html',
           code: html,
           text: '',
           parent: 'public',
@@ -103,6 +188,7 @@ const reducer = produce(
           name: action.payload.name,
           nodeId: randomId(),
           nodeType: 'file',
+          fileFormat: 'javascript',
           code: '',
           text: '',
           parent: 'workspace',
@@ -181,6 +267,7 @@ const reducer = produce(
           name: action.payload.name,
           nodeId: randomId(),
           nodeType: 'file',
+          fileFormat: 'javascript',
           code: '',
           text: '',
           parent: action.payload.folderNodeId,
@@ -233,11 +320,11 @@ const reducer = produce(
       }
 
       case ActionType.SELECT_FILE_INFO_FOR_VIEW: {
-        let nodeSelectedIndex: number;
-        let parentIndex: number;
+        let mainIndex: number;
+        let subIndex: number;
 
         if (action.payload.parent === 'workspace') {
-          nodeSelectedIndex = state.allNodes.findIndex(
+          mainIndex = state.allNodes.findIndex(
             (n) => n.nodeId === action.payload.nodeId
           );
         }
@@ -247,13 +334,13 @@ const reducer = produce(
           const parentFolder = state.allNodes.find(
             (n) => n.nodeId === action.payload.parent
           );
-          parentIndex = state.allNodes.findIndex(
+          mainIndex = state.allNodes.findIndex(
             (n) => n.nodeId === action.payload.parent
           );
 
           // type guard
           if (parentFolder.nodeType === 'folder') {
-            nodeSelectedIndex = parentFolder.files.findIndex(
+            subIndex = parentFolder.files.findIndex(
               (n) => n.nodeId === action.payload.nodeId
             );
           }
@@ -262,8 +349,8 @@ const reducer = produce(
         state.selectedFileInfoToView = {
           nodeId: action.payload.nodeId,
           parent: action.payload.parent,
-          index: parentIndex,
-          subIndex: nodeSelectedIndex,
+          index: mainIndex,
+          subIndex: subIndex,
         };
 
         // Because of immutability feature of immer, i can't referance a node in all nodes, so this code doesn't work. I need to work around it
@@ -291,46 +378,3 @@ const randomId = () => {
 };
 
 export default reducer;
-
-/*
-
-const reducer = produce((
-  state: CellState = initialState,
-  action: Action
-): CellState => {
-  switch (action.type) {
-    case ActionType.UPDATE_CELL:
-      const { id, content } = action.payload;
-      state.data[id].content = content;
-      return state;
-
-    case ActionType.DELETE_CELL:
-      delete state.data[action.payload.id]; // delete from data
-      state.order = state.order.filter((id) => id !== action.payload.id); // delete from order array.
-      return state;
-
-    case ActionType.ADD_CELL:
-      const cell: Cell = {
-        content: '',
-        type: action.payload.type,
-        id: randomId(),
-      };
-      state.data[cell.id] = cell;
-
-      const foundIndex = state.order.findIndex(
-        (id) => id === action.payload.id
-      );
-
-      if (foundIndex < 0) {
-        state.order.push(cell.id);
-      } else {
-        state.order.splice(foundIndex, 0, cell.id);
-      }
-      return state;
-
-    default:
-      return state;
-  }
-})
-
-*/

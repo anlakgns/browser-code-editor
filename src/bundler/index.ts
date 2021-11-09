@@ -1,9 +1,10 @@
 import * as esbuild from 'esbuild-wasm';
 import { unpkgPathPlugin } from './plugins/unpkgPathPlugin';
 import { fetchPlugin } from './plugins/fetch-plugin';
+import { File, Folder } from '../state/cellNodeTypes';
 
 let service: esbuild.Service;
-const bundle = async (entry: string, allCode: object) => {
+const bundle = async (entry: string, allCode: (File | Folder)[]) => {
   if (!service) {
     // The service object here is going to do all stuff bundling and tranforming/transpiling. We need it anyway. This is the way we can be sure we have it always. The service object will return us 4 function so that we can use : build, serve, stop and transform. We will use build and transform. Transform just do transpiling not any bundling. Bundle function is self-explanatory.
     service = await esbuild.startService({
