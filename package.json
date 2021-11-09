@@ -24,7 +24,7 @@
     "immer": "^9.0.6",
     "jscodeshift": "0.11.0",
     "localforage": "^1.10.0",
-    "monaco-jsx-highlighter": "^1.1.8",
+    "monaco-jsx-highlighter": "0.0.15",
     "prettier": "^2.4.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
