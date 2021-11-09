@@ -25,7 +25,7 @@ const bundle = async (entry: string, allCode: (File | Folder)[]) => {
       // we will give input the index.js only here and later help esbuild to find the correct paths and loads.
       plugins: [unpkgPathPlugin(), fetchPlugin(entry, allCode)],
       define: {
-        // 'process.env.NODE_ENV': '"production"', // to fix a bug
+        'process.env.NODE_ENV': '"production"', // to fix a bug
         global: 'window', // to fix a bug
       },
     });
